@@ -13,6 +13,14 @@ import {
 import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, Text, View, TextInput, Button } from 'react-native';
 import { useState } from "react";
+import {
+  getFirestore,
+  collection,
+  addDoc,
+  getDoc,
+  query,
+  where
+} from 'firebase/firestore';
 
 const firebaseConfig = {
   apiKey: "AIzaSyDzL8z5UoBwNVF8cSLdUkV0ch4NvrEWvao",
@@ -23,14 +31,20 @@ const firebaseConfig = {
   appId: "1:565828800306:web:46a8d4be7ca2865bef512b"
 };
 
+// Initialize Firebase
 const app = initializeApp(firebaseConfig);
-// const auth = getAuth(app); // Sin persistencia en sesiones
 const auth = initializeAuth(app, { persistence: getReactNativePersistence(ReactNativeAsyncStorage) });
+const db = getFirestore(app);
 
+
+// Default app
 export default function App() {
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [name, setName] = useState("");
+  const [breed, setBreed] = useState("");
+
   return (
     <View style={styles.container}>
       <StatusBar style="auto" />
@@ -90,6 +104,50 @@ export default function App() {
             console.log("LOGGED OUT SUCCESSFULLY!");
           });
         }}
+      />
+
+
+      {/* -------------------- Dog Firebase -------------------- */}
+      
+      <TextInput
+        placeholder="Name"
+        onChangeText={text => {
+          setName(text);
+        }}
+      />
+
+      <TextInput
+        placeholder="Breed"
+        onChangeText={text => {
+          setBreed(text);
+        }}
+      />
+
+      <Button
+        title="Add"
+        onPress={async () => {
+          try {
+            var dogCollection = collection(db, "dog");
+            const newDoc = await addDoc(dogCollection, {
+              name: name,
+              breed: breed
+            });
+
+            console.log("ID of the new dog:", newDoc.id);
+          } catch (e) {
+            console.log("Dog error:\n", e);
+          }
+        }}
+      />
+
+      <Button
+        title="Get all"
+        onPress={async () => { }}
+      />
+
+      <Button
+        title="Query"
+        onPress={async () => { }}
       />
 
     </View>
